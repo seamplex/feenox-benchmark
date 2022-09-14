@@ -1,0 +1,4 @@
+stiffness
+*.o
+flags.h
+nbproject

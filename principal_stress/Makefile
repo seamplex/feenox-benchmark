@@ -8,9 +8,14 @@ CXXFLAGS = -Ofast -flto=auto
 # CXXFLAGS = -O0
 # CXXFLAGS = -g
 
+# read the flags from the command line (see run.sh)
+# CXXFLAGS = $(OPT)
 
 TARGET = principal_stress
 include ../benchmark.make
+
+# # CXXFLAGS += -I/home/gtheler/codigos/benchmark/include
+LDFLAGS = /home/gtheler/codigos/benchmark/build/src/libbenchmark.a $(SLEPC_LIB) $(PETSC_LIB) $(LIBS) $(DOWNLOADED_GSL_LIBS)
 
 all: flags $(TARGET)
 

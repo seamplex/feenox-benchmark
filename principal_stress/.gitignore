@@ -1,3 +1,4 @@
 principal_stress
 principal_stress.o
 flags.h
+results*.txt

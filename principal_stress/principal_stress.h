@@ -8,9 +8,9 @@
   double sigmax = distribution(rng); \
   double sigmay = distribution(rng); \
   double sigmaz = distribution(rng); \
-  double tauxy = distribution(rng); \
-  double tauyz = distribution(rng); \
-  double tauzx  = distribution(rng); \
+  double tauxy = distribution(rng);  \
+  double tauyz = distribution(rng);  \
+  double tauzx = distribution(rng);  \
   double sigma1[1]; \
   double sigma2[1]; \
   double sigma3[1];
@@ -36,8 +36,16 @@
 #define ARGS_DECL (double sigmax, double sigmay, double sigmaz, double tauxy, double tauyz, double tauzx, double *sigma1, double *sigma2, double *sigma3) 
 #define ARGS_CALL (sigmax, sigmay, sigmaz, tauxy, tauyz, tauzx, sigma1, sigma2, sigma3)
 
-#define DO_NOT_OPTIMIZE     benchmark::ClobberMemory(); benchmark::DoNotOptimize(sigma1[0]); benchmark::DoNotOptimize(sigma2[0]); benchmark::DoNotOptimize(sigma3[0]);
+#define ABS_TOL 1e-6
+#define CHECK(val1,val2) assert(fabs(val1 - val2) < ABS_TOL);
+// #define CHECK(val1,val2) if (fabs(val1 - val2) > ABS_TOL) printf("mongocho\n");
+#define CHECK_RESULTS    CHECK(sigma1[0], 118.679); CHECK(sigma2[0], -31.9952); CHECK(sigma3[0], -173.651);
 
+#define DO_NOT_OPTIMIZE     benchmark::DoNotOptimize(sigma1[0]); benchmark::DoNotOptimize(sigma2[0]); benchmark::DoNotOptimize(sigma3[0]);
+// #define DO_NOT_OPTIMIZE     benchmark::ClobberMemory();  
+// #define DO_NOT_OPTIMIZE     benchmark::ClobberMemory(); benchmark::DoNotOptimize(sigma1[0]); benchmark::DoNotOptimize(sigma2[0]); benchmark::DoNotOptimize(sigma3[0]);
+
+// #define VERBOSE
 #ifdef VERBOSE
  #define PRINT               printf("%g %g %g\n", sigma1[0], sigma2[0], sigma3[0]);
 #else

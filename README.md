@@ -101,80 +101,164 @@ make
 ./principal_stress
 ```
 
-No optimization:
+All the following runs use FeenoX compiled with GCC and `CFLAGS=-Ofast -flto=auto` (see `feenox_compiler_flags` in the outputs below).
 
-```
-benchmark_compiler_command: g++ -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich
-benchmark_compiler_flags: 
-benchmark_compiler_version: g++ (Debian 12.2.0-1) 12.2.0
-feenox_compiler_command: gcc -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpich
-feenox_compiler_flags: -Ofast -flto=auto
-feenox_compiler_version: gcc (Debian 12.2.0-1) 12.2.0
------------------------------------------------------------------------------------
-Benchmark                                         Time             CPU   Iterations
------------------------------------------------------------------------------------
-BM_principal_stress_feenox                     49.1 ns         49.1 ns     14093997
-BM_principal_stress_call                       76.1 ns         76.1 ns      9012373
-BM_principal_stress_void                       76.0 ns         76.0 ns      9198482
-BM_principal_stress_wrapper                    79.9 ns         79.9 ns      8343373
-BM_principal_stress_wrapper2                   85.4 ns         85.4 ns      7921801
-BM_principal_stress_wrapper3                   91.0 ns         91.0 ns      7658558
-BM_principal_stress_call_cpp_same              76.0 ns         76.0 ns      9309241
-BM_principal_stress_expanded                   72.2 ns         72.2 ns      9715853
-BM_principal_stress_inline                     75.9 ns         75.9 ns      9358058
-BM_principal_stress_inline_optimized_out       74.5 ns         74.5 ns      9517478
+ 1. No optimization in the benchmark's `Makefile`, i.e. `CXXFLAGS=-O0`. The call to FeenoX' code is faster because it was compiled with `-Ofast` and the others use `-O0`:
 
-```
+    ```
+    benchmark_compiler_command: g++ -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich
+    benchmark_compiler_flags: 
+    benchmark_compiler_version: g++ (Debian 12.2.0-1) 12.2.0
+    feenox_compiler_command: gcc -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpich
+    feenox_compiler_flags: -Ofast -flto=auto
+    feenox_compiler_version: gcc (Debian 12.2.0-1) 12.2.0
+    -------------------------------------------------------------------------------------
+    Benchmark                                           Time             CPU   Iterations
+    -------------------------------------------------------------------------------------
+    BM_principal_stress_feenox                       72.3 ns         72.3 ns      7829337
+    BM_principal_stress_call                         96.8 ns         96.8 ns      7282039
+    BM_principal_stress_void                         98.4 ns         98.4 ns      7078540
+    BM_principal_stress_wrapper                       104 ns          104 ns      6755073
+    BM_principal_stress_wrapper2                      106 ns          106 ns      6468864
+    BM_principal_stress_wrapper3                      112 ns          112 ns      6331257
+    BM_principal_stress_call_cpp_same                97.0 ns         97.0 ns      7289604
+    BM_principal_stress_expanded                     94.0 ns         93.9 ns      7203169
+    BM_principal_stress_inline                       97.5 ns         97.5 ns      7039346
+    BM_principal_stress_inline_optimized_out         95.7 ns         95.7 ns      7138072
+    BM_principal_stress_overhead_sigmax_double       2.38 ns         2.38 ns    290591419
+    BM_principal_stress_overhead_sigmax_int          1.88 ns         1.88 ns    372357007
+    ```
 
-Intermediate optimization (`-O2`  in the benchmark):
+ 2. Intermediate optimization `-O2` in the benchmark. Now the other calls are slightly faster but still slower than FeenoX:
 
-```
-benchmark_compiler_command: g++ -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich
-benchmark_compiler_flags: -O2
-benchmark_compiler_version: g++ (Debian 12.2.0-1) 12.2.0
-feenox_compiler_command: gcc -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpich
-feenox_compiler_flags: -Ofast -flto=auto
-feenox_compiler_version: gcc (Debian 12.2.0-1) 12.2.0
------------------------------------------------------------------------------------
-Benchmark                                         Time             CPU   Iterations
------------------------------------------------------------------------------------
-BM_principal_stress_feenox                     49.0 ns         49.0 ns     14670628
-BM_principal_stress_call                       52.4 ns         52.4 ns     13407588
-BM_principal_stress_void                       51.7 ns         51.7 ns     13323554
-BM_principal_stress_wrapper                    51.5 ns         51.5 ns     13611282
-BM_principal_stress_wrapper2                   51.4 ns         51.4 ns     13819114
-BM_principal_stress_wrapper3                   51.9 ns         51.9 ns     13530845
-BM_principal_stress_call_cpp_same              57.8 ns         57.8 ns     13552037
-BM_principal_stress_expanded                  0.319 ns        0.319 ns   1000000000
-BM_principal_stress_inline                    0.271 ns        0.271 ns   1000000000
-BM_principal_stress_inline_optimized_out      0.000 ns        0.000 ns   1000000000
-```
+    ```
+    benchmark_compiler_command: g++ -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich
+    benchmark_compiler_flags: -O2
+    benchmark_compiler_version: g++ (Debian 12.2.0-1) 12.2.0
+    feenox_compiler_command: gcc -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpich
+    feenox_compiler_flags: -Ofast -flto=auto
+    feenox_compiler_version: gcc (Debian 12.2.0-1) 12.2.0
+    -------------------------------------------------------------------------------------
+    Benchmark                                           Time             CPU   Iterations
+    -------------------------------------------------------------------------------------
+    BM_principal_stress_feenox                       70.1 ns         70.1 ns      8231293
+    BM_principal_stress_call                         74.2 ns         74.2 ns      9106319
+    BM_principal_stress_void                         73.1 ns         73.1 ns      9528729
+    BM_principal_stress_wrapper                      73.9 ns         73.9 ns      9129438
+    BM_principal_stress_wrapper2                     73.7 ns         73.7 ns      9572405
+    BM_principal_stress_wrapper3                     74.2 ns         74.2 ns      9401638
+    BM_principal_stress_call_cpp_same                73.4 ns         73.4 ns      9507737
+    BM_principal_stress_expanded                     72.1 ns         72.1 ns      9356419
+    BM_principal_stress_inline                       72.4 ns         72.4 ns      9626681
+    BM_principal_stress_inline_optimized_out         26.0 ns         26.0 ns     27283808
+    BM_principal_stress_overhead_sigmax_double       1.05 ns         1.05 ns    673686331
+    BM_principal_stress_overhead_sigmax_int         0.522 ns        0.522 ns   1000000000
+    ```
 
-Full optimization (including LTO):
+ 3. Level-three optimization `-O3` in the benchmark. Closer but FeenoX is still faster, even though some of the benchmark calls can be inlined while the call to FeenoX cannot:
 
-```
-benchmark_compiler_command: g++ -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich
-benchmark_compiler_flags: -flto=auto -Ofast
-benchmark_compiler_version: g++ (Debian 12.2.0-1) 12.2.0
-feenox_compiler_command: gcc -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpich
-feenox_compiler_flags: -Ofast -flto=auto
-feenox_compiler_version: gcc (Debian 12.2.0-1) 12.2.0
------------------------------------------------------------------------------------
-Benchmark                                         Time             CPU   Iterations
------------------------------------------------------------------------------------
-BM_principal_stress_feenox                    0.275 ns        0.274 ns   1000000000
-BM_principal_stress_call                      0.267 ns        0.267 ns   1000000000
-BM_principal_stress_void                      0.269 ns        0.269 ns   1000000000
-BM_principal_stress_wrapper                   0.269 ns        0.269 ns   1000000000
-BM_principal_stress_wrapper2                  0.271 ns        0.271 ns   1000000000
-BM_principal_stress_wrapper3                  0.263 ns        0.263 ns   1000000000
-BM_principal_stress_call_cpp_same             0.268 ns        0.268 ns   1000000000
-BM_principal_stress_expanded                  0.265 ns        0.265 ns   1000000000
-BM_principal_stress_inline                    0.263 ns        0.263 ns   1000000000
-BM_principal_stress_inline_optimized_out      0.000 ns        0.000 ns   1000000000
-```
+    ```
+    benchmark_compiler_command: g++ -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich
+    benchmark_compiler_flags: -O3
+    benchmark_compiler_version: g++ (Debian 12.2.0-1) 12.2.0
+    feenox_compiler_command: gcc -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpich
+    feenox_compiler_flags: -Ofast -flto=auto
+    feenox_compiler_version: gcc (Debian 12.2.0-1) 12.2.0
+    -------------------------------------------------------------------------------------
+    Benchmark                                           Time             CPU   Iterations
+    -------------------------------------------------------------------------------------
+    BM_principal_stress_feenox                       70.8 ns         70.8 ns      8061182
+    BM_principal_stress_call                         72.2 ns         72.2 ns      9700876
+    BM_principal_stress_void                         72.7 ns         72.7 ns      9441510
+    BM_principal_stress_wrapper                      72.6 ns         72.6 ns      9749349
+    BM_principal_stress_wrapper2                     72.9 ns         72.9 ns      9295160
+    BM_principal_stress_wrapper3                     72.9 ns         72.9 ns      9566969
+    BM_principal_stress_call_cpp_same                72.3 ns         72.3 ns      9220847
+    BM_principal_stress_expanded                     72.4 ns         72.4 ns      9672055
+    BM_principal_stress_inline                       72.7 ns         72.7 ns      9553364
+    BM_principal_stress_inline_optimized_out         26.0 ns         26.0 ns     26423158
+    BM_principal_stress_overhead_sigmax_double       1.07 ns         1.06 ns    661818956
+    BM_principal_stress_overhead_sigmax_int         0.522 ns        0.522 ns   1000000000
+    ```
 
+ 4. Fast optimization `-Ofast` in the benchmark. Now all the calls in the benchmark are faster because all of them are inlined while the call to FeenoX is not inlined.
+ 
+    ```
+    benchmark_compiler_command: g++ -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich
+    benchmark_compiler_flags: -Ofast
+    benchmark_compiler_version: g++ (Debian 12.2.0-1) 12.2.0
+    feenox_compiler_command: gcc -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpich
+    feenox_compiler_flags: -Ofast -flto=auto
+    feenox_compiler_version: gcc (Debian 12.2.0-1) 12.2.0
+    -------------------------------------------------------------------------------------
+    Benchmark                                           Time             CPU   Iterations
+    -------------------------------------------------------------------------------------
+    BM_principal_stress_feenox                       70.0 ns         70.0 ns      8231407
+    BM_principal_stress_call                         66.4 ns         66.4 ns     10278649
+    BM_principal_stress_void                         66.0 ns         66.0 ns     10674543
+    BM_principal_stress_wrapper                      66.2 ns         66.2 ns     10429742
+    BM_principal_stress_wrapper2                     65.9 ns         65.9 ns     10682682
+    BM_principal_stress_wrapper3                     66.4 ns         66.4 ns     10319174
+    BM_principal_stress_call_cpp_same                66.4 ns         66.4 ns     10632631
+    BM_principal_stress_expanded                     66.0 ns         66.0 ns     10160912
+    BM_principal_stress_inline                       66.2 ns         66.2 ns     10610910
+    BM_principal_stress_inline_optimized_out        0.000 ns        0.000 ns   1000000000
+    BM_principal_stress_overhead_sigmax_double       1.06 ns         1.06 ns    661165736
+    BM_principal_stress_overhead_sigmax_int         0.524 ns        0.524 ns   1000000000
+    ```
 
+ 5. Level-three optimization and link-time optimization `-O3 -flto` in the benchmark. FeenoX is slightly faster but the call does not seem to be inlined automatically, i.e. the effect of `-flto` is not obvious.
+ 
+    ```
+    benchmark_compiler_command: g++ -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich
+    benchmark_compiler_flags: -flto=auto -O3
+    benchmark_compiler_version: g++ (Debian 12.2.0-1) 12.2.0
+    feenox_compiler_command: gcc -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpich
+    feenox_compiler_flags: -Ofast -flto=auto
+    feenox_compiler_version: gcc (Debian 12.2.0-1) 12.2.0
+    -------------------------------------------------------------------------------------
+    Benchmark                                           Time             CPU   Iterations
+    -------------------------------------------------------------------------------------
+    BM_principal_stress_feenox                       71.2 ns         71.2 ns      8141022
+    BM_principal_stress_call                         71.8 ns         71.8 ns      9698680
+    BM_principal_stress_void                         72.9 ns         72.9 ns      9588978
+    BM_principal_stress_wrapper                      72.4 ns         72.4 ns      9652976
+    BM_principal_stress_wrapper2                     71.4 ns         71.4 ns      9351013
+    BM_principal_stress_wrapper3                     72.5 ns         72.5 ns      9801144
+    BM_principal_stress_call_cpp_same                72.2 ns         72.2 ns      9520815
+    BM_principal_stress_expanded                     73.1 ns         73.1 ns      9768862
+    BM_principal_stress_inline                       72.0 ns         72.0 ns      9721819
+    BM_principal_stress_inline_optimized_out         26.2 ns         26.2 ns     26201980
+    BM_principal_stress_overhead_sigmax_double       1.06 ns         1.06 ns    648864982
+    BM_principal_stress_overhead_sigmax_int         0.524 ns        0.524 ns   1000000000
+    ```
+
+ 6. Fast optimization and link-time optimization `-Ofast -flto` in the benchmark. Now the call to FeenoX is equivalent to the inlined and fast-optimized code within the benchmark.
+ 
+    ```
+    benchmark_compiler_command: g++ -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpichcxx -lmpich
+    benchmark_compiler_flags: -flto=auto -Ofast
+    benchmark_compiler_version: g++ (Debian 12.2.0-1) 12.2.0
+    feenox_compiler_command: gcc -Wl,-z,relro -I/usr/include/x86_64-linux-gnu/mpich -L/usr/lib/x86_64-linux-gnu -lmpich
+    feenox_compiler_flags: -Ofast -flto=auto
+    feenox_compiler_version: gcc (Debian 12.2.0-1) 12.2.0
+    -------------------------------------------------------------------------------------
+    Benchmark                                           Time             CPU   Iterations
+    -------------------------------------------------------------------------------------
+    BM_principal_stress_feenox                       66.7 ns         66.7 ns      8693376
+    BM_principal_stress_call                         66.0 ns         66.0 ns     10472553
+    BM_principal_stress_void                         66.1 ns         66.1 ns     10317352
+    BM_principal_stress_wrapper                      66.1 ns         66.1 ns     10133735
+    BM_principal_stress_wrapper2                     66.5 ns         66.4 ns     10577702
+    BM_principal_stress_wrapper3                     66.2 ns         66.1 ns     10156528
+    BM_principal_stress_call_cpp_same                66.5 ns         66.5 ns     10597228
+    BM_principal_stress_expanded                     66.7 ns         66.6 ns     10326400
+    BM_principal_stress_inline                       66.7 ns         66.6 ns     10601185
+    BM_principal_stress_inline_optimized_out        0.000 ns        0.000 ns   1000000000
+    BM_principal_stress_overhead_sigmax_double       1.05 ns         1.05 ns    667892504
+    BM_principal_stress_overhead_sigmax_int         0.519 ns        0.519 ns   1000000000
+    ```
+        
 ## Stifness matrix
 
 This benchmark measures the time neded for FeenoX to build a mechanical stiffness matrix with a call to `feenox_problem_build()`. This case is slightly more complex because an actual mechanical problem has to be set up, including

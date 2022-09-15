@@ -2,7 +2,7 @@
 
 if [ ! -e feenox ]; then
   echo "cloning FeenoX from Github"
-  git clone https://www.github.com/seamplex/feenox
+  git clone https://www.github.com/seamplex/feenox || exit 1
 else
   echo "FeenoX already cloned in feenox"
 fi
@@ -11,21 +11,21 @@ fi
 cd feenox
  if [ ! -e configure ]; then
   echo "bootstrapping FeenoX"
-  ./autogen.sh
+  ./autogen.sh || exit 1
  else
    echo "FeenoX already bootstrapped"
  fi
 
  if [ ! -e Makefile ]; then
   echo "configuring FeenoX"
-  ./configure
+  ./configure || exit 1
  else
   echo "FeenoX already configured" 
  fi
 
  if [ ! -e src/feenox-feenox.o ]; then
   echo "compiling FeenoX"
-  make
+  make || exit 1
  else
   echo "FeenoX already compiled"
  fi
